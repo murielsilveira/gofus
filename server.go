@@ -1,13 +1,22 @@
 package main
 
-import "github.com/gofiber/fiber"
+import (
+	"os"
 
-func main()  {
+	"github.com/gofiber/fiber"
+)
+
+func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "9000"
+	}
+
 	app := fiber.New()
 
 	app.Get("/", func(c *fiber.Ctx) {
 		c.Send("Hello, world!")
 	})
 
-	app.Listen(9000)
+	app.Listen(port)
 }
