@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/gofiber/fiber"
+	"github.com/gofiber/fiber/v2"
 	_ "github.com/lib/pq"
 )
 
@@ -15,6 +15,7 @@ func main() {
 	if port == "" {
 		port = "9000"
 	}
+
 	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL == "" {
 		dbURL = "postgres://postgres:postgres@localhost/?sslmode=disable"
@@ -27,17 +28,17 @@ func main() {
 		log.Fatalf("Error opening database: %q", err)
 	}
 
-	app.Get("/", func(c *fiber.Ctx) {
-		c.Send("Hello, world!")
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.SendString("Hello, world!")
 	})
 
-	app.Get("/db", func(c *fiber.Ctx) {
+	app.Get("/db", func(c *fiber.Ctx) error {
 		if _, err := db.Exec("SELECT 1"); err != nil {
-			c.Send(fmt.Sprintf("Error querying database: %q", err))
+			return c.SendString(fmt.Sprintf("Error querying database: %q", err))
 		} else {
-			c.Send("WORKED!!")
+			return c.SendString("WORKED!!")
 		}
 	})
 
-	app.Listen(port)
+	app.Listen(":" + port)
 }

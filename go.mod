@@ -1,8 +1,8 @@
 module github.com/murielsilveira/gofus
 
-go 1.14
+go 1.16
 
 require (
-	github.com/gofiber/fiber v1.9.6
-	github.com/lib/pq v1.5.2
+	github.com/gofiber/fiber/v2 v2.7.1
+	github.com/lib/pq v1.10.0
 )
