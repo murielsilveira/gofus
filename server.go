@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/template/html/v2"
 	_ "github.com/lib/pq"
 )
 
@@ -21,7 +22,10 @@ func main() {
 		dbURL = "postgres://postgres:postgres@localhost/?sslmode=disable"
 	}
 
-	app := fiber.New()
+	engine := html.New("./templates", ".go.html")
+	app := fiber.New(fiber.Config{
+		Views: engine,
+	})
 
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
@@ -30,6 +34,10 @@ func main() {
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, world!")
+	})
+
+	app.Get("/app.html", func(c *fiber.Ctx) error {
+		return c.Render("app", fiber.Map{"Some": "Var"})
 	})
 
 	app.Get("/db", func(c *fiber.Ctx) error {
