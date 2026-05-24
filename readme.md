@@ -11,7 +11,7 @@ Kanban-style REST API (boards, columns, tasks) built with Go, Fiber, PostgreSQL,
 ## Setup
 
 ```bash
-export DATABASE_URL=postgres://postgres:postgres@localhost/?sslmode=disable  # optional; this is the default
+make create-db
 make migrate-up
 make sqlc
 ```
@@ -30,6 +30,7 @@ Server listens on `:9000` (override with `PORT`). API lives at `/api/v1`.
 | ------------------- | ---------------------------- |
 | `make run`          | Start the server             |
 | `make build`        | Build binary to `bin/server` |
+| `make create-db`    | Create `gofus_dev` database  |
 | `make migrate-up`   | Apply migrations             |
 | `make migrate-down` | Roll back one migration      |
 | `make sqlc`         | Regenerate Go code from SQL  |
