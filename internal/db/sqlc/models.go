@@ -6,28 +6,26 @@ package sqlc
 
 import (
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type Board struct {
-	ID        uuid.UUID `json:"id"`
+	ID        int32     `json:"id"`
 	Name      string    `json:"name"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type Column struct {
-	ID        uuid.UUID `json:"id"`
-	BoardID   uuid.UUID `json:"board_id"`
+	ID        int32     `json:"id"`
+	BoardID   int32     `json:"board_id"`
 	Name      string    `json:"name"`
 	Position  int32     `json:"position"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
 type Task struct {
-	ID          uuid.UUID `json:"id"`
-	ColumnID    uuid.UUID `json:"column_id"`
+	ID          int32     `json:"id"`
+	ColumnID    int32     `json:"column_id"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	Position    int32     `json:"position"`

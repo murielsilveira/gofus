@@ -2,7 +2,6 @@ package task
 
 import (
 	"github.com/gofiber/fiber/v3"
-	"github.com/google/uuid"
 	"github.com/murielsilveira/gofus/internal/platform/errs"
 	"github.com/murielsilveira/gofus/internal/platform/httpx"
 )
@@ -22,14 +21,14 @@ type createRequest struct {
 }
 
 type updateRequest struct {
-	ColumnID    *uuid.UUID `json:"column_id"`
+	ColumnID    *int32  `json:"column_id"`
 	Title       *string    `json:"title"`
 	Description *string    `json:"description"`
 	Position    *int32     `json:"position"`
 }
 
 func (h *Handler) Create(c fiber.Ctx) error {
-	columnID, err := httpx.ParseUUID(c, "columnID")
+	columnID, err := httpx.ParseID(c, "columnID")
 	if err != nil {
 		return httpx.Error(c, err)
 	}
@@ -61,7 +60,7 @@ func (h *Handler) Create(c fiber.Ctx) error {
 }
 
 func (h *Handler) List(c fiber.Ctx) error {
-	columnID, err := httpx.ParseUUID(c, "columnID")
+	columnID, err := httpx.ParseID(c, "columnID")
 	if err != nil {
 		return httpx.Error(c, err)
 	}
@@ -75,7 +74,7 @@ func (h *Handler) List(c fiber.Ctx) error {
 }
 
 func (h *Handler) Get(c fiber.Ctx) error {
-	id, err := httpx.ParseUUID(c, "id")
+	id, err := httpx.ParseID(c, "id")
 	if err != nil {
 		return httpx.Error(c, err)
 	}
@@ -89,7 +88,7 @@ func (h *Handler) Get(c fiber.Ctx) error {
 }
 
 func (h *Handler) Update(c fiber.Ctx) error {
-	id, err := httpx.ParseUUID(c, "id")
+	id, err := httpx.ParseID(c, "id")
 	if err != nil {
 		return httpx.Error(c, err)
 	}
@@ -116,7 +115,7 @@ func (h *Handler) Update(c fiber.Ctx) error {
 }
 
 func (h *Handler) Delete(c fiber.Ctx) error {
-	id, err := httpx.ParseUUID(c, "id")
+	id, err := httpx.ParseID(c, "id")
 	if err != nil {
 		return httpx.Error(c, err)
 	}

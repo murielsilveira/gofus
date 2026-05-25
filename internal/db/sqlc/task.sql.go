@@ -7,8 +7,6 @@ package sqlc
 
 import (
 	"context"
-
-	"github.com/google/uuid"
 )
 
 const createTask = `-- name: CreateTask :one
@@ -18,10 +16,10 @@ RETURNING id, column_id, title, description, position, created_at, updated_at
 `
 
 type CreateTaskParams struct {
-	ColumnID    uuid.UUID `json:"column_id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	Position    int32     `json:"position"`
+	ColumnID    int32  `json:"column_id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Position    int32  `json:"position"`
 }
 
 func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (Task, error) {
@@ -49,7 +47,7 @@ DELETE FROM tasks
 WHERE id = $1
 `
 
-func (q *Queries) DeleteTask(ctx context.Context, id uuid.UUID) (int64, error) {
+func (q *Queries) DeleteTask(ctx context.Context, id int32) (int64, error) {
 	result, err := q.db.Exec(ctx, deleteTask, id)
 	if err != nil {
 		return 0, err
@@ -62,7 +60,7 @@ SELECT id, column_id, title, description, position, created_at, updated_at FROM 
 WHERE id = $1
 `
 
-func (q *Queries) GetTask(ctx context.Context, id uuid.UUID) (Task, error) {
+func (q *Queries) GetTask(ctx context.Context, id int32) (Task, error) {
 	row := q.db.QueryRow(ctx, getTask, id)
 	var i Task
 	err := row.Scan(
@@ -83,7 +81,7 @@ WHERE column_id = $1
 ORDER BY position, created_at
 `
 
-func (q *Queries) ListTasksByColumn(ctx context.Context, columnID uuid.UUID) ([]Task, error) {
+func (q *Queries) ListTasksByColumn(ctx context.Context, columnID int32) ([]Task, error) {
 	rows, err := q.db.Query(ctx, listTasksByColumn, columnID)
 	if err != nil {
 		return nil, err
@@ -119,11 +117,11 @@ RETURNING id, column_id, title, description, position, created_at, updated_at
 `
 
 type UpdateTaskParams struct {
-	ID          uuid.UUID `json:"id"`
-	ColumnID    uuid.UUID `json:"column_id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	Position    int32     `json:"position"`
+	ID          int32  `json:"id"`
+	ColumnID    int32  `json:"column_id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Position    int32  `json:"position"`
 }
 
 func (q *Queries) UpdateTask(ctx context.Context, arg UpdateTaskParams) (Task, error) {

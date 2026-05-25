@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 
 	"github.com/murielsilveira/gofus/internal/db/sqlc"
@@ -20,7 +19,7 @@ func NewService(q *sqlc.Queries) *Service {
 }
 
 type CreateInput struct {
-	BoardID  uuid.UUID
+	BoardID  int32
 	Name     string
 	Position int32
 }
@@ -37,12 +36,12 @@ func (s *Service) Create(ctx context.Context, in CreateInput) (sqlc.Column, erro
 	})
 }
 
-func (s *Service) Get(ctx context.Context, id uuid.UUID) (sqlc.Column, error) {
-	column, err := s.q.GetColumn(ctx, id)
+func (s *Service) Get(ctx context.Context, columnID int32) (sqlc.Column, error) {
+	column, err := s.q.GetColumn(ctx, columnID)
 	return column, mapError(err)
 }
 
-func (s *Service) ListByBoard(ctx context.Context, boardID uuid.UUID) ([]sqlc.Column, error) {
+func (s *Service) ListByBoard(ctx context.Context, boardID int32) ([]sqlc.Column, error) {
 	if _, err := s.q.GetBoard(ctx, boardID); err != nil {
 		return nil, mapError(err)
 	}
@@ -55,8 +54,8 @@ type UpdateInput struct {
 	Position *int32
 }
 
-func (s *Service) Update(ctx context.Context, id uuid.UUID, in UpdateInput) (sqlc.Column, error) {
-	existing, err := s.Get(ctx, id)
+func (s *Service) Update(ctx context.Context, columnID int32, in UpdateInput) (sqlc.Column, error) {
+	existing, err := s.Get(ctx, columnID)
 	if err != nil {
 		return sqlc.Column{}, err
 	}
@@ -72,15 +71,15 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, in UpdateInput) (sql
 	}
 
 	column, err := s.q.UpdateColumn(ctx, sqlc.UpdateColumnParams{
-		ID:       id,
+		ID:       columnID,
 		Name:     name,
 		Position: position,
 	})
 	return column, mapError(err)
 }
 
-func (s *Service) Delete(ctx context.Context, id uuid.UUID) error {
-	rows, err := s.q.DeleteColumn(ctx, id)
+func (s *Service) Delete(ctx context.Context, columnID int32) error {
+	rows, err := s.q.DeleteColumn(ctx, columnID)
 	if err != nil {
 		return err
 	}

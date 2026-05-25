@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 
 	"github.com/murielsilveira/gofus/internal/db/sqlc"
@@ -23,8 +22,8 @@ func (s *Service) Create(ctx context.Context, name string) (sqlc.Board, error) {
 	return s.q.CreateBoard(ctx, name)
 }
 
-func (s *Service) Get(ctx context.Context, id uuid.UUID) (sqlc.Board, error) {
-	board, err := s.q.GetBoard(ctx, id)
+func (s *Service) Get(ctx context.Context, boardID int32) (sqlc.Board, error) {
+	board, err := s.q.GetBoard(ctx, boardID)
 	return board, mapError(err)
 }
 
@@ -36,8 +35,8 @@ type UpdateInput struct {
 	Name *string
 }
 
-func (s *Service) Update(ctx context.Context, id uuid.UUID, in UpdateInput) (sqlc.Board, error) {
-	existing, err := s.Get(ctx, id)
+func (s *Service) Update(ctx context.Context, boardID int32, in UpdateInput) (sqlc.Board, error) {
+	existing, err := s.Get(ctx, boardID)
 	if err != nil {
 		return sqlc.Board{}, err
 	}
@@ -48,14 +47,14 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, in UpdateInput) (sql
 	}
 
 	board, err := s.q.UpdateBoard(ctx, sqlc.UpdateBoardParams{
-		ID:   id,
+		ID:   boardID,
 		Name: name,
 	})
 	return board, mapError(err)
 }
 
-func (s *Service) Delete(ctx context.Context, id uuid.UUID) error {
-	rows, err := s.q.DeleteBoard(ctx, id)
+func (s *Service) Delete(ctx context.Context, boardID int32) error {
+	rows, err := s.q.DeleteBoard(ctx, boardID)
 	if err != nil {
 		return err
 	}

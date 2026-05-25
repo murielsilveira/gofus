@@ -7,8 +7,6 @@ package sqlc
 
 import (
 	"context"
-
-	"github.com/google/uuid"
 )
 
 const createColumn = `-- name: CreateColumn :one
@@ -18,9 +16,9 @@ RETURNING id, board_id, name, position, created_at
 `
 
 type CreateColumnParams struct {
-	BoardID  uuid.UUID `json:"board_id"`
-	Name     string    `json:"name"`
-	Position int32     `json:"position"`
+	BoardID  int32  `json:"board_id"`
+	Name     string `json:"name"`
+	Position int32  `json:"position"`
 }
 
 func (q *Queries) CreateColumn(ctx context.Context, arg CreateColumnParams) (Column, error) {
@@ -41,7 +39,7 @@ DELETE FROM columns
 WHERE id = $1
 `
 
-func (q *Queries) DeleteColumn(ctx context.Context, id uuid.UUID) (int64, error) {
+func (q *Queries) DeleteColumn(ctx context.Context, id int32) (int64, error) {
 	result, err := q.db.Exec(ctx, deleteColumn, id)
 	if err != nil {
 		return 0, err
@@ -54,7 +52,7 @@ SELECT id, board_id, name, position, created_at FROM columns
 WHERE id = $1
 `
 
-func (q *Queries) GetColumn(ctx context.Context, id uuid.UUID) (Column, error) {
+func (q *Queries) GetColumn(ctx context.Context, id int32) (Column, error) {
 	row := q.db.QueryRow(ctx, getColumn, id)
 	var i Column
 	err := row.Scan(
@@ -73,7 +71,7 @@ WHERE board_id = $1
 ORDER BY position, created_at
 `
 
-func (q *Queries) ListColumnsByBoard(ctx context.Context, boardID uuid.UUID) ([]Column, error) {
+func (q *Queries) ListColumnsByBoard(ctx context.Context, boardID int32) ([]Column, error) {
 	rows, err := q.db.Query(ctx, listColumnsByBoard, boardID)
 	if err != nil {
 		return nil, err
@@ -107,9 +105,9 @@ RETURNING id, board_id, name, position, created_at
 `
 
 type UpdateColumnParams struct {
-	ID       uuid.UUID `json:"id"`
-	Name     string    `json:"name"`
-	Position int32     `json:"position"`
+	ID       int32  `json:"id"`
+	Name     string `json:"name"`
+	Position int32  `json:"position"`
 }
 
 func (q *Queries) UpdateColumn(ctx context.Context, arg UpdateColumnParams) (Column, error) {

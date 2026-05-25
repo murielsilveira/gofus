@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 
 	"github.com/murielsilveira/gofus/internal/db/sqlc"
@@ -20,7 +19,7 @@ func NewService(q *sqlc.Queries) *Service {
 }
 
 type CreateInput struct {
-	ColumnID    uuid.UUID
+	ColumnID    int32
 	Title       string
 	Description string
 	Position    int32
@@ -39,12 +38,12 @@ func (s *Service) Create(ctx context.Context, in CreateInput) (sqlc.Task, error)
 	})
 }
 
-func (s *Service) Get(ctx context.Context, id uuid.UUID) (sqlc.Task, error) {
-	task, err := s.q.GetTask(ctx, id)
+func (s *Service) Get(ctx context.Context, taskID int32) (sqlc.Task, error) {
+	task, err := s.q.GetTask(ctx, taskID)
 	return task, mapError(err)
 }
 
-func (s *Service) ListByColumn(ctx context.Context, columnID uuid.UUID) ([]sqlc.Task, error) {
+func (s *Service) ListByColumn(ctx context.Context, columnID int32) ([]sqlc.Task, error) {
 	if _, err := s.q.GetColumn(ctx, columnID); err != nil {
 		return nil, mapError(err)
 	}
@@ -53,14 +52,14 @@ func (s *Service) ListByColumn(ctx context.Context, columnID uuid.UUID) ([]sqlc.
 }
 
 type UpdateInput struct {
-	ColumnID    *uuid.UUID
+	ColumnID    *int32
 	Title       *string
 	Description *string
 	Position    *int32
 }
 
-func (s *Service) Update(ctx context.Context, id uuid.UUID, in UpdateInput) (sqlc.Task, error) {
-	existing, err := s.Get(ctx, id)
+func (s *Service) Update(ctx context.Context, taskID int32, in UpdateInput) (sqlc.Task, error) {
+	existing, err := s.Get(ctx, taskID)
 	if err != nil {
 		return sqlc.Task{}, err
 	}
@@ -89,7 +88,7 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, in UpdateInput) (sql
 	}
 
 	task, err := s.q.UpdateTask(ctx, sqlc.UpdateTaskParams{
-		ID:          id,
+		ID:          taskID,
 		ColumnID:    columnID,
 		Title:       title,
 		Description: description,
@@ -98,8 +97,8 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, in UpdateInput) (sql
 	return task, mapError(err)
 }
 
-func (s *Service) Delete(ctx context.Context, id uuid.UUID) error {
-	rows, err := s.q.DeleteTask(ctx, id)
+func (s *Service) Delete(ctx context.Context, taskID int32) error {
+	rows, err := s.q.DeleteTask(ctx, taskID)
 	if err != nil {
 		return err
 	}

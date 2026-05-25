@@ -3,9 +3,9 @@ package httpx
 import (
 	"errors"
 	"log"
+	"strconv"
 
 	"github.com/gofiber/fiber/v3"
-	"github.com/google/uuid"
 
 	"github.com/murielsilveira/gofus/internal/platform/errs"
 )
@@ -30,16 +30,10 @@ func Error(c fiber.Ctx, err error) error {
 	}
 }
 
-func ParseUUID(c fiber.Ctx, param string) (uuid.UUID, error) {
-	value := c.Params(param)
-	if value == "" {
-		return uuid.Nil, errs.ErrBadRequest
+func ParseID(c fiber.Ctx, param string) (int32, error) {
+	n, err := strconv.ParseInt(c.Params(param), 10, 32)
+	if err != nil || n <= 0 {
+		return 0, errs.ErrBadRequest
 	}
-
-	id, err := uuid.Parse(value)
-	if err != nil {
-		return uuid.Nil, errs.ErrBadRequest
-	}
-
-	return id, nil
+	return int32(n), nil
 }

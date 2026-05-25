@@ -7,8 +7,6 @@ package sqlc
 
 import (
 	"context"
-
-	"github.com/google/uuid"
 )
 
 const createBoard = `-- name: CreateBoard :one
@@ -34,7 +32,7 @@ DELETE FROM boards
 WHERE id = $1
 `
 
-func (q *Queries) DeleteBoard(ctx context.Context, id uuid.UUID) (int64, error) {
+func (q *Queries) DeleteBoard(ctx context.Context, id int32) (int64, error) {
 	result, err := q.db.Exec(ctx, deleteBoard, id)
 	if err != nil {
 		return 0, err
@@ -47,7 +45,7 @@ SELECT id, name, created_at, updated_at FROM boards
 WHERE id = $1
 `
 
-func (q *Queries) GetBoard(ctx context.Context, id uuid.UUID) (Board, error) {
+func (q *Queries) GetBoard(ctx context.Context, id int32) (Board, error) {
 	row := q.db.QueryRow(ctx, getBoard, id)
 	var i Board
 	err := row.Scan(
@@ -97,8 +95,8 @@ RETURNING id, name, created_at, updated_at
 `
 
 type UpdateBoardParams struct {
-	ID   uuid.UUID `json:"id"`
-	Name string    `json:"name"`
+	ID   int32  `json:"id"`
+	Name string `json:"name"`
 }
 
 func (q *Queries) UpdateBoard(ctx context.Context, arg UpdateBoardParams) (Board, error) {

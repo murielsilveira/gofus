@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/gofiber/fiber/v3"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
 	"github.com/murielsilveira/gofus/internal/db/sqlc"
@@ -87,7 +86,7 @@ func TestBoards(t *testing.T) {
 		app := setup(t)
 		created := createBoard(t, app, "Get Board")
 
-		resp := request(t, app, http.MethodGet, fmt.Sprintf("/api/v1/boards/%s", created.ID), nil)
+		resp := request(t, app, http.MethodGet, fmt.Sprintf("/api/v1/boards/%d", created.ID), nil)
 		require.Equal(t, http.StatusOK, resp.StatusCode)
 
 		var board sqlc.Board
@@ -96,15 +95,15 @@ func TestBoards(t *testing.T) {
 		require.Equal(t, "Get Board", board.Name)
 	})
 
-	t.Run("GET /api/v1/boards/:id invalid UUID", func(t *testing.T) {
+	t.Run("GET /api/v1/boards/:id invalid ID", func(t *testing.T) {
 		app := setup(t)
-		resp := request(t, app, http.MethodGet, "/api/v1/boards/not-a-uuid", nil)
+		resp := request(t, app, http.MethodGet, "/api/v1/boards/not-a-number", nil)
 		assertError(t, resp, http.StatusBadRequest, "bad request")
 	})
 
 	t.Run("GET /api/v1/boards/:id not found", func(t *testing.T) {
 		app := setup(t)
-		resp := request(t, app, http.MethodGet, fmt.Sprintf("/api/v1/boards/%s", uuid.New()), nil)
+		resp := request(t, app, http.MethodGet, "/api/v1/boards/999999", nil)
 		assertError(t, resp, http.StatusNotFound, "not found")
 	})
 
@@ -112,7 +111,7 @@ func TestBoards(t *testing.T) {
 		app := setup(t)
 		created := createBoard(t, app, "Old Name")
 
-		resp := request(t, app, http.MethodPatch, fmt.Sprintf("/api/v1/boards/%s", created.ID), map[string]string{
+		resp := request(t, app, http.MethodPatch, fmt.Sprintf("/api/v1/boards/%d", created.ID), map[string]string{
 			"name": "New Name",
 		})
 		require.Equal(t, http.StatusOK, resp.StatusCode)
@@ -126,7 +125,7 @@ func TestBoards(t *testing.T) {
 		app := setup(t)
 		created := createBoard(t, app, "Patch Board")
 
-		resp := request(t, app, http.MethodPatch, fmt.Sprintf("/api/v1/boards/%s", created.ID), map[string]any{})
+		resp := request(t, app, http.MethodPatch, fmt.Sprintf("/api/v1/boards/%d", created.ID), map[string]any{})
 		assertError(t, resp, http.StatusBadRequest, "bad request")
 	})
 
@@ -134,11 +133,11 @@ func TestBoards(t *testing.T) {
 		app := setup(t)
 		created := createBoard(t, app, "Delete Board")
 
-		resp := request(t, app, http.MethodDelete, fmt.Sprintf("/api/v1/boards/%s", created.ID), nil)
+		resp := request(t, app, http.MethodDelete, fmt.Sprintf("/api/v1/boards/%d", created.ID), nil)
 		require.Equal(t, http.StatusNoContent, resp.StatusCode)
 		resp.Body.Close()
 
-		getResp := request(t, app, http.MethodGet, fmt.Sprintf("/api/v1/boards/%s", created.ID), nil)
+		getResp := request(t, app, http.MethodGet, fmt.Sprintf("/api/v1/boards/%d", created.ID), nil)
 		assertError(t, getResp, http.StatusNotFound, "not found")
 	})
 }
@@ -149,7 +148,7 @@ func TestColumns(t *testing.T) {
 		board := createBoard(t, app, "Column Board")
 
 		position := int32(1)
-		resp := request(t, app, http.MethodPost, fmt.Sprintf("/api/v1/boards/%s/columns", board.ID), map[string]any{
+		resp := request(t, app, http.MethodPost, fmt.Sprintf("/api/v1/boards/%d/columns", board.ID), map[string]any{
 			"name":     "Todo",
 			"position": position,
 		})
@@ -166,7 +165,7 @@ func TestColumns(t *testing.T) {
 	t.Run("POST /api/v1/boards/:boardID/columns missing board", func(t *testing.T) {
 		app := setup(t)
 
-		resp := request(t, app, http.MethodPost, fmt.Sprintf("/api/v1/boards/%s/columns", uuid.New()), map[string]string{
+		resp := request(t, app, http.MethodPost, "/api/v1/boards/999999/columns", map[string]string{
 			"name": "Todo",
 		})
 		assertError(t, resp, http.StatusNotFound, "not found")
@@ -176,7 +175,7 @@ func TestColumns(t *testing.T) {
 		app := setup(t)
 		board := createBoard(t, app, "Column Board")
 
-		resp := request(t, app, http.MethodPost, fmt.Sprintf("/api/v1/boards/%s/columns", board.ID), map[string]string{
+		resp := request(t, app, http.MethodPost, fmt.Sprintf("/api/v1/boards/%d/columns", board.ID), map[string]string{
 			"name": "",
 		})
 		assertError(t, resp, http.StatusBadRequest, "bad request")
@@ -187,7 +186,7 @@ func TestColumns(t *testing.T) {
 		board := createBoard(t, app, "Column Board")
 		created := createColumn(t, app, board.ID, "In Progress")
 
-		resp := request(t, app, http.MethodGet, fmt.Sprintf("/api/v1/boards/%s/columns", board.ID), nil)
+		resp := request(t, app, http.MethodGet, fmt.Sprintf("/api/v1/boards/%d/columns", board.ID), nil)
 		require.Equal(t, http.StatusOK, resp.StatusCode)
 
 		var columns []sqlc.Column
@@ -199,7 +198,7 @@ func TestColumns(t *testing.T) {
 	t.Run("GET /api/v1/boards/:boardID/columns missing board", func(t *testing.T) {
 		app := setup(t)
 
-		resp := request(t, app, http.MethodGet, fmt.Sprintf("/api/v1/boards/%s/columns", uuid.New()), nil)
+		resp := request(t, app, http.MethodGet, "/api/v1/boards/999999/columns", nil)
 		assertError(t, resp, http.StatusNotFound, "not found")
 	})
 
@@ -208,7 +207,7 @@ func TestColumns(t *testing.T) {
 		board := createBoard(t, app, "Column Board")
 		created := createColumn(t, app, board.ID, "Done")
 
-		resp := request(t, app, http.MethodGet, fmt.Sprintf("/api/v1/columns/%s", created.ID), nil)
+		resp := request(t, app, http.MethodGet, fmt.Sprintf("/api/v1/columns/%d", created.ID), nil)
 		require.Equal(t, http.StatusOK, resp.StatusCode)
 
 		var column sqlc.Column
@@ -219,7 +218,7 @@ func TestColumns(t *testing.T) {
 	t.Run("GET /api/v1/columns/:id not found", func(t *testing.T) {
 		app := setup(t)
 
-		resp := request(t, app, http.MethodGet, fmt.Sprintf("/api/v1/columns/%s", uuid.New()), nil)
+		resp := request(t, app, http.MethodGet, "/api/v1/columns/999999", nil)
 		assertError(t, resp, http.StatusNotFound, "not found")
 	})
 
@@ -229,7 +228,7 @@ func TestColumns(t *testing.T) {
 		created := createColumn(t, app, board.ID, "Review")
 
 		position := int32(3)
-		resp := request(t, app, http.MethodPatch, fmt.Sprintf("/api/v1/columns/%s", created.ID), map[string]any{
+		resp := request(t, app, http.MethodPatch, fmt.Sprintf("/api/v1/columns/%d", created.ID), map[string]any{
 			"name":     "QA",
 			"position": position,
 		})
@@ -246,11 +245,11 @@ func TestColumns(t *testing.T) {
 		board := createBoard(t, app, "Column Board")
 		created := createColumn(t, app, board.ID, "Archive")
 
-		resp := request(t, app, http.MethodDelete, fmt.Sprintf("/api/v1/columns/%s", created.ID), nil)
+		resp := request(t, app, http.MethodDelete, fmt.Sprintf("/api/v1/columns/%d", created.ID), nil)
 		require.Equal(t, http.StatusNoContent, resp.StatusCode)
 		resp.Body.Close()
 
-		getResp := request(t, app, http.MethodGet, fmt.Sprintf("/api/v1/columns/%s", created.ID), nil)
+		getResp := request(t, app, http.MethodGet, fmt.Sprintf("/api/v1/columns/%d", created.ID), nil)
 		assertError(t, getResp, http.StatusNotFound, "not found")
 	})
 }
@@ -262,7 +261,7 @@ func TestTasks(t *testing.T) {
 		column := createColumn(t, app, board.ID, "Todo")
 
 		position := int32(2)
-		resp := request(t, app, http.MethodPost, fmt.Sprintf("/api/v1/columns/%s/tasks", column.ID), map[string]any{
+		resp := request(t, app, http.MethodPost, fmt.Sprintf("/api/v1/columns/%d/tasks", column.ID), map[string]any{
 			"title":       "Write tests",
 			"description": "Cover all endpoints",
 			"position":    position,
@@ -281,7 +280,7 @@ func TestTasks(t *testing.T) {
 	t.Run("POST /api/v1/columns/:columnID/tasks missing column", func(t *testing.T) {
 		app := setup(t)
 
-		resp := request(t, app, http.MethodPost, fmt.Sprintf("/api/v1/columns/%s/tasks", uuid.New()), map[string]string{
+		resp := request(t, app, http.MethodPost, "/api/v1/columns/999999/tasks", map[string]string{
 			"title": "Orphan task",
 		})
 		assertError(t, resp, http.StatusNotFound, "not found")
@@ -292,7 +291,7 @@ func TestTasks(t *testing.T) {
 		board := createBoard(t, app, "Task Board")
 		column := createColumn(t, app, board.ID, "Todo")
 
-		resp := request(t, app, http.MethodPost, fmt.Sprintf("/api/v1/columns/%s/tasks", column.ID), map[string]string{
+		resp := request(t, app, http.MethodPost, fmt.Sprintf("/api/v1/columns/%d/tasks", column.ID), map[string]string{
 			"title": "",
 		})
 		assertError(t, resp, http.StatusBadRequest, "bad request")
@@ -304,7 +303,7 @@ func TestTasks(t *testing.T) {
 		column := createColumn(t, app, board.ID, "Todo")
 		created := createTask(t, app, column.ID, "List task")
 
-		resp := request(t, app, http.MethodGet, fmt.Sprintf("/api/v1/columns/%s/tasks", column.ID), nil)
+		resp := request(t, app, http.MethodGet, fmt.Sprintf("/api/v1/columns/%d/tasks", column.ID), nil)
 		require.Equal(t, http.StatusOK, resp.StatusCode)
 
 		var tasks []sqlc.Task
@@ -316,7 +315,7 @@ func TestTasks(t *testing.T) {
 	t.Run("GET /api/v1/columns/:columnID/tasks missing column", func(t *testing.T) {
 		app := setup(t)
 
-		resp := request(t, app, http.MethodGet, fmt.Sprintf("/api/v1/columns/%s/tasks", uuid.New()), nil)
+		resp := request(t, app, http.MethodGet, "/api/v1/columns/999999/tasks", nil)
 		assertError(t, resp, http.StatusNotFound, "not found")
 	})
 
@@ -326,7 +325,7 @@ func TestTasks(t *testing.T) {
 		column := createColumn(t, app, board.ID, "Todo")
 		created := createTask(t, app, column.ID, "Get task")
 
-		resp := request(t, app, http.MethodGet, fmt.Sprintf("/api/v1/tasks/%s", created.ID), nil)
+		resp := request(t, app, http.MethodGet, fmt.Sprintf("/api/v1/tasks/%d", created.ID), nil)
 		require.Equal(t, http.StatusOK, resp.StatusCode)
 
 		var task sqlc.Task
@@ -337,7 +336,7 @@ func TestTasks(t *testing.T) {
 	t.Run("GET /api/v1/tasks/:id not found", func(t *testing.T) {
 		app := setup(t)
 
-		resp := request(t, app, http.MethodGet, fmt.Sprintf("/api/v1/tasks/%s", uuid.New()), nil)
+		resp := request(t, app, http.MethodGet, "/api/v1/tasks/999999", nil)
 		assertError(t, resp, http.StatusNotFound, "not found")
 	})
 
@@ -348,7 +347,7 @@ func TestTasks(t *testing.T) {
 		otherColumn := createColumn(t, app, board.ID, "Done")
 		created := createTask(t, app, column.ID, "Move me")
 
-		resp := request(t, app, http.MethodPatch, fmt.Sprintf("/api/v1/tasks/%s", created.ID), map[string]any{
+		resp := request(t, app, http.MethodPatch, fmt.Sprintf("/api/v1/tasks/%d", created.ID), map[string]any{
 			"column_id": otherColumn.ID,
 			"title":     "Moved task",
 		})
@@ -366,11 +365,11 @@ func TestTasks(t *testing.T) {
 		column := createColumn(t, app, board.ID, "Todo")
 		created := createTask(t, app, column.ID, "Delete me")
 
-		resp := request(t, app, http.MethodDelete, fmt.Sprintf("/api/v1/tasks/%s", created.ID), nil)
+		resp := request(t, app, http.MethodDelete, fmt.Sprintf("/api/v1/tasks/%d", created.ID), nil)
 		require.Equal(t, http.StatusNoContent, resp.StatusCode)
 		resp.Body.Close()
 
-		getResp := request(t, app, http.MethodGet, fmt.Sprintf("/api/v1/tasks/%s", created.ID), nil)
+		getResp := request(t, app, http.MethodGet, fmt.Sprintf("/api/v1/tasks/%d", created.ID), nil)
 		assertError(t, getResp, http.StatusNotFound, "not found")
 	})
 }
@@ -384,7 +383,7 @@ func TestAPI_FullKanbanFlow(t *testing.T) {
 
 	task := createTask(t, app, todo.ID, "Ship feature")
 
-	moveResp := request(t, app, http.MethodPatch, fmt.Sprintf("/api/v1/tasks/%s", task.ID), map[string]any{
+	moveResp := request(t, app, http.MethodPatch, fmt.Sprintf("/api/v1/tasks/%d", task.ID), map[string]any{
 		"column_id": done.ID,
 	})
 	require.Equal(t, http.StatusOK, moveResp.StatusCode)
@@ -393,17 +392,17 @@ func TestAPI_FullKanbanFlow(t *testing.T) {
 	decodeJSON(t, moveResp, &moved)
 	require.Equal(t, done.ID, moved.ColumnID)
 
-	listResp := request(t, app, http.MethodGet, fmt.Sprintf("/api/v1/columns/%s/tasks", done.ID), nil)
+	listResp := request(t, app, http.MethodGet, fmt.Sprintf("/api/v1/columns/%d/tasks", done.ID), nil)
 	var doneTasks []sqlc.Task
 	decodeJSON(t, listResp, &doneTasks)
 	require.Len(t, doneTasks, 1)
 	require.Equal(t, task.ID, doneTasks[0].ID)
 
-	deleteResp := request(t, app, http.MethodDelete, fmt.Sprintf("/api/v1/boards/%s", board.ID), nil)
+	deleteResp := request(t, app, http.MethodDelete, fmt.Sprintf("/api/v1/boards/%d", board.ID), nil)
 	require.Equal(t, http.StatusNoContent, deleteResp.StatusCode)
 	deleteResp.Body.Close()
 
-	columnResp := request(t, app, http.MethodGet, fmt.Sprintf("/api/v1/columns/%s", todo.ID), nil)
+	columnResp := request(t, app, http.MethodGet, fmt.Sprintf("/api/v1/columns/%d", todo.ID), nil)
 	assertError(t, columnResp, http.StatusNotFound, "not found")
 }
 
@@ -418,10 +417,10 @@ func createBoard(t *testing.T, app *fiber.App, name string) sqlc.Board {
 	return board
 }
 
-func createColumn(t *testing.T, app *fiber.App, boardID uuid.UUID, name string) sqlc.Column {
+func createColumn(t *testing.T, app *fiber.App, boardID int32, name string) sqlc.Column {
 	t.Helper()
 
-	resp := request(t, app, http.MethodPost, fmt.Sprintf("/api/v1/boards/%s/columns", boardID), map[string]string{
+	resp := request(t, app, http.MethodPost, fmt.Sprintf("/api/v1/boards/%d/columns", boardID), map[string]string{
 		"name": name,
 	})
 	require.Equal(t, http.StatusCreated, resp.StatusCode)
@@ -431,10 +430,10 @@ func createColumn(t *testing.T, app *fiber.App, boardID uuid.UUID, name string) 
 	return column
 }
 
-func createTask(t *testing.T, app *fiber.App, columnID uuid.UUID, title string) sqlc.Task {
+func createTask(t *testing.T, app *fiber.App, columnID int32, title string) sqlc.Task {
 	t.Helper()
 
-	resp := request(t, app, http.MethodPost, fmt.Sprintf("/api/v1/columns/%s/tasks", columnID), map[string]string{
+	resp := request(t, app, http.MethodPost, fmt.Sprintf("/api/v1/columns/%d/tasks", columnID), map[string]string{
 		"title": title,
 	})
 	require.Equal(t, http.StatusCreated, resp.StatusCode)

@@ -25,7 +25,7 @@ type updateRequest struct {
 }
 
 func (h *Handler) Create(c fiber.Ctx) error {
-	boardID, err := httpx.ParseUUID(c, "boardID")
+	boardID, err := httpx.ParseID(c, "boardID")
 	if err != nil {
 		return httpx.Error(c, err)
 	}
@@ -56,7 +56,7 @@ func (h *Handler) Create(c fiber.Ctx) error {
 }
 
 func (h *Handler) List(c fiber.Ctx) error {
-	boardID, err := httpx.ParseUUID(c, "boardID")
+	boardID, err := httpx.ParseID(c, "boardID")
 	if err != nil {
 		return httpx.Error(c, err)
 	}
@@ -70,7 +70,7 @@ func (h *Handler) List(c fiber.Ctx) error {
 }
 
 func (h *Handler) Get(c fiber.Ctx) error {
-	id, err := httpx.ParseUUID(c, "id")
+	id, err := httpx.ParseID(c, "id")
 	if err != nil {
 		return httpx.Error(c, err)
 	}
@@ -84,7 +84,7 @@ func (h *Handler) Get(c fiber.Ctx) error {
 }
 
 func (h *Handler) Update(c fiber.Ctx) error {
-	id, err := httpx.ParseUUID(c, "id")
+	id, err := httpx.ParseID(c, "id")
 	if err != nil {
 		return httpx.Error(c, err)
 	}
@@ -109,7 +109,7 @@ func (h *Handler) Update(c fiber.Ctx) error {
 }
 
 func (h *Handler) Delete(c fiber.Ctx) error {
-	id, err := httpx.ParseUUID(c, "id")
+	id, err := httpx.ParseID(c, "id")
 	if err != nil {
 		return httpx.Error(c, err)
 	}
