@@ -1,0 +1,24 @@
+CREATE TABLE boards (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE columns (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    board_id INT NOT NULL REFERENCES boards(id),
+    name TEXT NOT NULL,
+    position INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE tasks (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    column_id INT NOT NULL REFERENCES columns(id),
+    title TEXT NOT NULL,
+    description TEXT NOT NULL DEFAULT '',
+    position INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
