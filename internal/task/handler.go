@@ -3,6 +3,7 @@ package task
 import (
 	"github.com/gofiber/fiber/v3"
 	"github.com/google/uuid"
+	"github.com/murielsilveira/gofus/internal/platform/errs"
 	"github.com/murielsilveira/gofus/internal/platform/httpx"
 )
 
@@ -35,10 +36,10 @@ func (h *Handler) Create(c fiber.Ctx) error {
 
 	var req createRequest
 	if err := c.Bind().Body(&req); err != nil {
-		return httpx.Error(c, httpx.ErrBadRequest)
+		return httpx.Error(c, errs.ErrBadRequest)
 	}
 	if req.Title == "" {
-		return httpx.Error(c, httpx.ErrBadRequest)
+		return httpx.Error(c, errs.ErrBadRequest)
 	}
 
 	position := int32(0)
@@ -95,10 +96,10 @@ func (h *Handler) Update(c fiber.Ctx) error {
 
 	var req updateRequest
 	if err := c.Bind().Body(&req); err != nil {
-		return httpx.Error(c, httpx.ErrBadRequest)
+		return httpx.Error(c, errs.ErrBadRequest)
 	}
 	if req.ColumnID == nil && req.Title == nil && req.Description == nil && req.Position == nil {
-		return httpx.Error(c, httpx.ErrBadRequest)
+		return httpx.Error(c, errs.ErrBadRequest)
 	}
 
 	task, err := h.service.Update(c, id, UpdateInput{

@@ -2,6 +2,7 @@ package column
 
 import (
 	"github.com/gofiber/fiber/v3"
+	"github.com/murielsilveira/gofus/internal/platform/errs"
 	"github.com/murielsilveira/gofus/internal/platform/httpx"
 )
 
@@ -31,10 +32,10 @@ func (h *Handler) Create(c fiber.Ctx) error {
 
 	var req createRequest
 	if err := c.Bind().Body(&req); err != nil {
-		return httpx.Error(c, httpx.ErrBadRequest)
+		return httpx.Error(c, errs.ErrBadRequest)
 	}
 	if req.Name == "" {
-		return httpx.Error(c, httpx.ErrBadRequest)
+		return httpx.Error(c, errs.ErrBadRequest)
 	}
 
 	position := int32(0)
@@ -90,10 +91,10 @@ func (h *Handler) Update(c fiber.Ctx) error {
 
 	var req updateRequest
 	if err := c.Bind().Body(&req); err != nil {
-		return httpx.Error(c, httpx.ErrBadRequest)
+		return httpx.Error(c, errs.ErrBadRequest)
 	}
 	if req.Name == nil && req.Position == nil {
-		return httpx.Error(c, httpx.ErrBadRequest)
+		return httpx.Error(c, errs.ErrBadRequest)
 	}
 
 	column, err := h.service.Update(c, id, UpdateInput{

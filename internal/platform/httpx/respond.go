@@ -22,7 +22,7 @@ func Error(c fiber.Ctx, err error) error {
 	switch {
 	case errors.Is(err, errs.ErrNotFound):
 		return JSON(c, fiber.StatusNotFound, errorResponse{Error: err.Error()})
-	case errors.Is(err, ErrBadRequest):
+	case errors.Is(err, errs.ErrBadRequest):
 		return JSON(c, fiber.StatusBadRequest, errorResponse{Error: err.Error()})
 	default:
 		log.Printf("request error: %v", err)
@@ -30,17 +30,15 @@ func Error(c fiber.Ctx, err error) error {
 	}
 }
 
-var ErrBadRequest = errors.New("bad request")
-
 func ParseUUID(c fiber.Ctx, param string) (uuid.UUID, error) {
 	value := c.Params(param)
 	if value == "" {
-		return uuid.Nil, ErrBadRequest
+		return uuid.Nil, errs.ErrBadRequest
 	}
 
 	id, err := uuid.Parse(value)
 	if err != nil {
-		return uuid.Nil, ErrBadRequest
+		return uuid.Nil, errs.ErrBadRequest
 	}
 
 	return id, nil
