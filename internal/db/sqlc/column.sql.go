@@ -35,8 +35,11 @@ func (q *Queries) CreateColumn(ctx context.Context, arg CreateColumnParams) (Col
 }
 
 const deleteColumn = `-- name: DeleteColumn :execrows
+WITH deleted_tasks AS (
+    DELETE FROM tasks WHERE column_id = $1
+)
 DELETE FROM columns
-WHERE id = $1
+WHERE columns.id = $1
 `
 
 func (q *Queries) DeleteColumn(ctx context.Context, id int32) (int64, error) {

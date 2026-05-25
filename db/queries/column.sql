@@ -19,5 +19,8 @@ WHERE id = $1
 RETURNING *;
 
 -- name: DeleteColumn :execrows
+WITH deleted_tasks AS (
+    DELETE FROM tasks WHERE column_id = $1
+)
 DELETE FROM columns
-WHERE id = $1;
+WHERE columns.id = $1;

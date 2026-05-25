@@ -16,6 +16,12 @@ make migrate-up
 make sqlc
 ```
 
+If you already have databases and changed migrations, wipe and re-apply:
+
+```bash
+make reset-db-all
+```
+
 ## Run
 
 ```bash
@@ -26,7 +32,7 @@ Server listens on `:9000` (override with `PORT`). API lives at `/api/v1`.
 
 ## Testing
 
-Tests use a **separate** database (`gofus_test` by default). Create it with `make create-db`. Tests truncate tables — never point them at dev.
+Tests use a **separate** database (`gofus_test` by default). Create it with `make create-db`. Tests truncate tables between cases — never point them at dev. After migration changes, reset the test DB with `make reset-db-test`.
 
 ```bash
 make test
@@ -36,16 +42,19 @@ Integration tests run in-process against the full stack (HTTP → handlers → s
 
 ## Makefile
 
-| Command             | Description                  |
-| ------------------- | ---------------------------- |
-| `make run`          | Start the server             |
-| `make build`        | Build binary to `bin/server` |
-| `make create-db`    | Create dev and test databases |
-| `make migrate-up`   | Apply migrations             |
-| `make migrate-down` | Roll back one migration      |
-| `make sqlc`         | Regenerate Go code from SQL  |
-| `make tidy`         | Tidy Go modules              |
-| `make test`         | Run integration tests        |
+| Command              | Description                             |
+| -------------------- | --------------------------------------- |
+| `make run`           | Start the server                        |
+| `make build`         | Build binary to `bin/server`            |
+| `make create-db`     | Create dev and test databases           |
+| `make reset-db`      | Drop and re-apply migrations on dev DB  |
+| `make reset-db-test` | Drop and re-apply migrations on test DB |
+| `make reset-db-all`  | Reset both dev and test databases       |
+| `make migrate-up`    | Apply migrations                        |
+| `make migrate-down`  | Roll back one migration                 |
+| `make sqlc`          | Regenerate Go code from SQL             |
+| `make tidy`          | Tidy Go modules                         |
+| `make test`          | Run integration tests                   |
 
 ## Layout
 
@@ -62,4 +71,4 @@ db/queries/          SQL queries for sqlc
 db/migrations/       schema migrations
 ```
 
-After changing `db/schema/` or `db/queries/`, run `make sqlc`. After changing migrations, run `make migrate-up`.
+After changing `db/schema/` or `db/queries/`, run `make sqlc`. After changing migrations, run `make migrate-up` (or `make reset-db` to wipe and re-apply from scratch).

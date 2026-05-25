@@ -28,8 +28,15 @@ func (q *Queries) CreateBoard(ctx context.Context, name string) (Board, error) {
 }
 
 const deleteBoard = `-- name: DeleteBoard :execrows
+WITH deleted_tasks AS (
+    DELETE FROM tasks
+    WHERE column_id IN (SELECT id FROM columns WHERE board_id = $1)
+),
+deleted_columns AS (
+    DELETE FROM columns WHERE board_id = $1
+)
 DELETE FROM boards
-WHERE id = $1
+WHERE boards.id = $1
 `
 
 func (q *Queries) DeleteBoard(ctx context.Context, id int32) (int64, error) {

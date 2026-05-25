@@ -18,5 +18,12 @@ WHERE id = $1
 RETURNING *;
 
 -- name: DeleteBoard :execrows
+WITH deleted_tasks AS (
+    DELETE FROM tasks
+    WHERE column_id IN (SELECT id FROM columns WHERE board_id = $1)
+),
+deleted_columns AS (
+    DELETE FROM columns WHERE board_id = $1
+)
 DELETE FROM boards
-WHERE id = $1;
+WHERE boards.id = $1;
