@@ -24,17 +24,28 @@ make run
 
 Server listens on `:9000` (override with `PORT`). API lives at `/api/v1`.
 
+## Testing
+
+Tests use a **separate** database (`gofus_test` by default). Create it with `make create-db`. Tests truncate tables — never point them at dev.
+
+```bash
+make test
+```
+
+Integration tests run in-process against the full stack (HTTP → handlers → services → PostgreSQL). If Postgres is unavailable, tests are skipped.
+
 ## Makefile
 
 | Command             | Description                  |
 | ------------------- | ---------------------------- |
 | `make run`          | Start the server             |
 | `make build`        | Build binary to `bin/server` |
-| `make create-db`    | Create `gofus_dev` database  |
+| `make create-db`    | Create dev and test databases |
 | `make migrate-up`   | Apply migrations             |
 | `make migrate-down` | Roll back one migration      |
 | `make sqlc`         | Regenerate Go code from SQL  |
 | `make tidy`         | Tidy Go modules              |
+| `make test`         | Run integration tests        |
 
 ## Layout
 
